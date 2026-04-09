@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TARJETAS OIJ">
+    <title>TARJETAS OIJ - Sistema de Transcripción</title>
+    <style>
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-success: #10b981;
+            --color-danger: #ef4444;
+            --color-warning: #f59e0b;
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-text: #0f172a;
+            --color-text-secondary: #64748b;
+            --color-border: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #0f172a;
+                --color-surface: #1e293b;
+                --color-text: #f1f5f9;
+                --color-text-secondary: #94a3b8;
+                --color-border: #334155;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--color-surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--color-primary);
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--color-border);
+            background: var(--color-surface);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .panel {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .panel h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 2px solid var(--color-border);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .card {
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .card-content {
+            font-size: 13px;
+        }
+
+        .card-content p {
+            margin-bottom: 8px;
+        }
+
+        .card-content strong {
+            color: var(--color-primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--color-danger);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--color-border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--color-primary);
+            background: var(--color-bg);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--color-primary);
+            background: var(--color-bg);
+        }
+
+        .ocr-status {
+            margin: 16px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            display: none;
+        }
+
+        .ocr-status.active {
+            display: block;
+        }
+
+        .ocr-progress {
+            width: 100%;
+            height: 8px;
+            background: var(--color-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .ocr-progress-bar {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .search-bar {
+            margin-bottom: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 TARJETAS OIJ</h1>
+            <p>Sistema de transcripción y gestión de tarjetas - <span id="roleIndicator">Modo visualización</span></p>
+        </div>
+
+        <div class="alert" id="alertBox"></div>
+
+        <!-- Selector de modo -->
+        <div class="mode-selector">
+            <button class="mode-btn" onclick="showLoginPanel()">
+                🔓 Modo Administrador
+            </button>
+            <button class="mode-btn active" onclick="setViewerMode()">
+                👁️ Modo Visualización
+            </button>
+        </div>
+
+        <!-- Panel de autenticación -->
+        <div class="panel hidden" id="loginPanel">
+            <h2>🔐 Acceso de Administrador</h2>
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" class="form-control" id="passwordInput" placeholder="Ingrese la contraseña">
+            </div>
+            <button class="btn btn-primary" onclick="authenticate()">Iniciar sesión</button>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total de tarjetas</h3>
+                <p id="totalCards">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Última actualización</h3>
+                <p id="lastUpdate" style="font-size: 16px;">-</p>
+            </div>
+        </div>
+
+        <!-- Panel de administrador -->
+        <div class="panel hidden" id="adminPanel">
+            <h2>➕ Nueva tarjeta</h2>
+            
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 18px; margin-bottom: 8px;">📤 Arrastra una imagen aquí</p>
+                <p style="color: var(--color-text-secondary); font-size: 14px;">o haz clic para seleccionar</p>
+                <input type="file" class="file-input" id="fileInput" accept="image/*">
+            </div>
+
+            <div id="transcriptionForm" class="hidden">
+                <img id="previewImage" class="image-preview" alt="Vista previa">
+                
+                <div class="ocr-status" id="ocrStatus">
+                    <p id="ocrMessage" style="margin: 0; font-size: 14px; font-weight: 600;">🤖 Procesando imagen con OCR...</p>
+                    <div class="ocr-progress">
+                        <div class="ocr-progress-bar" id="ocrProgress"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary" onclick="runOCR()" id="ocrBtn">
+                        🤖 Auto-transcribir con OCR
+                    </button>
+                    <button class="btn btn-secondary" onclick="runMultiCardOCR()" id="multiOcrBtn">
+                        📋 Detectar múltiples tarjetas
+                    </button>
+                    <button class="btn btn-primary" onclick="startManualSelection()" id="manualSelectBtn" style="background: #8b5cf6;">
+                        ✂️ Seleccionar tarjetas manualmente
+                    </button>
+                    <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 8px;">
+                        <strong>OCR simple:</strong> Detecta una tarjeta. <strong>Múltiples:</strong> Detecta 2-8 tarjetas automáticamente. <strong>Manual:</strong> Selecciona el área de cada tarjeta (4-8 por imagen).
+                    </p>
+                </div>
+
+                <!-- Canvas de selección manual -->
+                <div id="selectionCanvas" class="hidden" style="position: relative; margin-bottom: 16px;">
+                    <canvas id="canvasElement" style="border: 2px solid var(--color-primary); border-radius: 8px; cursor: crosshair; max-width: 100%; display: block;"></canvas>
+                    <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-success" onclick="processSelectedRegions()" id="processSelectionsBtn">
+                            ✅ Procesar tarjetas seleccionadas (<span id="selectionCount">0</span>)
+                        </button>
+                        <button class="btn btn-danger" onclick="undoLastSelection()">
+                            ↩️ Deshacer última
+                        </button>
+                        <button class="btn btn-secondary" onclick="cancelManualSelection()">
+                            ❌ Cancelar selección
+                        </button>
+                    </div>
+                    <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 8px;">
+                        Haz clic y arrastra para dibujar un rectángulo sobre cada tarjeta. Puedes seleccionar entre 4-8 tarjetas.
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoría de organización:</label>
+                    <select class="form-control" id="category">
+                        <option value="">Selecciona una categoría...</option>
+                        <option value="Fundaciones">1) Fundaciones</option>
+                        <option value="Empresas Importantes">2) Empresas Importantes</option>
+                        <option value="Empresas Normales">3) Empresas Normales</option>
+                        <option value="Instituciones Públicas">4) Instituciones Públicas</option>
+                        <option value="Organismos Internacionales">5) Organismos Internacionales</option>
+                        <option value="Instituciones Educativas">6) Instituciones Educativas</option>
+                        <option value="Asociaciones">7) Asociaciones</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre completo:</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Ej: Juan Pérez García">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de identificación:</label>
+                    <input type="text" class="form-control" id="idNumber" placeholder="Ej: 1-2345-6789">
+                </div>
+
+                <div class="form-group">
+                    <label>Cargo/Posición:</label>
+                    <input type="text" class="form-control" id="position" placeholder="Ej: Agente OIJ">
+                </div>
+
+                <div class="form-group">
+                    <label>Departamento/Unidad:</label>
+                    <input type="text" class="form-control" id="department" placeholder="Ej: Homicidios">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono:</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="Ej: +506 2222-2222">
+                </div>
+
+                <div class="form-group">
+                    <label>Correo electrónico:</label>
+                    <input type="email" class="form-control" id="email" placeholder="Ej: persona@oij.go.cr">
+                </div>
+
+                <div class="form-group">
+                    <label>Notas adicionales:</label>
+                    <textarea class="form-control" id="notes" placeholder="Cualquier información adicional..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-success" onclick="saveCard()">💾 Guardar tarjeta</button>
+                    <button class="btn btn-secondary" onclick="cancelForm()">❌ Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de herramientas -->
+        <div class="panel">
+            <h2>🗂️ Tarjetas registradas</h2>
+            
+            <div class="search-bar">
+                <input type="text" class="form-control" id="searchInput" 
+                       placeholder="🔍 Buscar por nombre, identificación, cargo..." 
+                       oninput="filterCards()">
+            </div>
+
+            <div class="toolbar">
+                <button class="btn btn-success" onclick="exportToExcel()">
+                    📊 Exportar a Excel
+                </button>
+                <button class="btn btn-primary" onclick="exportBackup()">
+                    💾 Exportar backup JSON
+                </button>
+                <button class="btn btn-secondary" onclick="importBackup()">
+                    📥 Importar backup JSON
+                </button>
+                <input type="file" id="jsonInput" class="file-input" accept=".json" onchange="loadBackup(this)">
+                <button class="btn btn-danger hidden" id="clearAllBtn" onclick="clearAllData()">
+                    🗑️ Borrar todo
+                </button>
+            </div>
+
+            <div class="cards-grid" id="cardsContainer">
+                <div class="empty-state">
+                    <p>No hay tarjetas registradas</p>
+                    <p style="font-size: 14px; margin-top: 8px;">Agrega tu primera tarjeta en el modo administrador</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para imagen ampliada -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <img id="modalImage" class="modal-image" alt="Imagen ampliada">
+        </div>
+    </div>
+
+    <!-- SheetJS Library -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- Tesseract.js OCR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <script>
+        // Variables globales
+        let currentMode = 'viewer';
+        let currentImageData = null;
+        const DEFAULT_PASSWORD = 'OIJ2026';
+        let db;
+        let ocrWorker = null;
+        let isOCRProcessing = false;
+        
+        // Variables para selección manual
+        let canvas = null;
+        let ctx = null;
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+        let selectedRegions = [];
+        let currentImageForSelection = null;
+        let canvasScale = 1;
+
+        // Inicializar IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('TarjetasOIJ', 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('cards')) {
+                        const objectStore = db.createObjectStore('cards', { keyPath: 'id', autoIncrement: true });
+                        objectStore.createIndex('fullName', 'fullName', { unique: false });
+                        objectStore.createIndex('idNumber', 'idNumber', { unique: false });
+                        objectStore.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                };
+            });
+        }
+
+        // Guardar tarjeta en IndexedDB
+        function saveCardToDB(cardData) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['cards'], 'readwrite');
+                const objectStore = transaction.objectStore('cards');
+                const request = objectStore.add(cardData);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Obtener todas las tarjetas
+        function getAllCards() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['cards'], 'readonly');
+                const objectStore = transaction.objectStore('cards');
+                const request = objectStore.getAll();
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Eliminar tarjeta
+        function deleteCardFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['cards'], 'readwrite');
+                const objectStore = transaction.objectStore('cards');
+                const request = objectStore.delete(id);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Limpiar todas las tarjetas
+        function clearAllCards() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['cards'], 'readwrite');
+                const objectStore = transaction.objectStore('cards');
+                const request = objectStore.clear();
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 4000);
+        }
+
+        // Autenticación
+        function showLoginPanel() {
+            document.getElementById('loginPanel').classList.remove('hidden');
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === DEFAULT_PASSWORD) {
+                currentMode = 'admin';
+                document.getElementById('loginPanel').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('clearAllBtn').classList.remove('hidden');
+                document.getElementById('roleIndicator').textContent = 'Modo administrador activo';
+                document.getElementById('passwordInput').value = '';
+                showAlert('Sesión de administrador iniciada correctamente', 'success');
+            } else {
+                showAlert('Contraseña incorrecta', 'error');
+            }
+        }
+
+        function setViewerMode() {
+            currentMode = 'viewer';
+            document.getElementById('loginPanel').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('clearAllBtn').classList.add('hidden');
+            document.getElementById('roleIndicator').textContent = 'Modo visualización';
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            cancelForm();
+        }
+
+        // Manejo de carga de imagen
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        function handleImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('Por favor selecciona un archivo de imagen válido', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImageData = e.target.result;
+                currentImageForSelection = null; // Resetear imagen anterior
+                document.getElementById('previewImage').src = currentImageData;
+                document.getElementById('transcriptionForm').classList.remove('hidden');
+                document.getElementById('ocrStatus').classList.remove('active');
+                document.getElementById('ocrBtn').disabled = false;
+                
+                // Ocultar canvas de selección si estaba visible
+                document.getElementById('selectionCanvas').classList.add('hidden');
+                selectedRegions = [];
+                updateSelectionCount();
+                
+                showAlert('Imagen cargada. Usa OCR automático o completa manualmente.', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Inicializar worker de Tesseract
+        async function initOCRWorker() {
+            if (ocrWorker) return ocrWorker;
+            
+            ocrWorker = await Tesseract.createWorker('spa+eng', 1, {
+                logger: (m) => {
+                    if (m.status === 'recognizing text') {
+                        const progress = Math.round(m.progress * 100);
+                        document.getElementById('ocrProgress').style.width = progress + '%';
+                        document.getElementById('ocrMessage').textContent = `🤖 Reconociendo texto... ${progress}%`;
+                    }
+                }
+            });
+            
+            return ocrWorker;
+        }
+
+        // Ejecutar OCR en la imagen (tarjeta única)
+        async function runOCR() {
+            if (isOCRProcessing) {
+                showAlert('Ya hay un proceso de OCR en ejecución', 'warning');
+                return;
+            }
+
+            if (!currentImageData) {
+                showAlert('No hay imagen cargada', 'error');
+                return;
+            }
+
+            isOCRProcessing = true;
+            document.getElementById('ocrBtn').disabled = true;
+            document.getElementById('multiOcrBtn').disabled = true;
+            document.getElementById('ocrStatus').classList.add('active');
+            document.getElementById('ocrMessage').textContent = '🤖 Inicializando OCR...';
+            document.getElementById('ocrProgress').style.width = '0%';
+
+            try {
+                const worker = await initOCRWorker();
+                
+                document.getElementById('ocrMessage').textContent = '🤖 Reconociendo texto...';
+                const { data: { text } } = await worker.recognize(currentImageData);
+                
+                document.getElementById('ocrMessage').textContent = '✅ OCR completado. Analizando datos...';
+                document.getElementById('ocrProgress').style.width = '100%';
+
+                parseOCRText(text);
+                
+                showAlert('OCR completado. Revisa y corrige los campos detectados.', 'success');
+                
+                setTimeout(() => {
+                    document.getElementById('ocrStatus').classList.remove('active');
+                }, 3000);
+
+            } catch (error) {
+                showAlert('Error en OCR: ' + error.message, 'error');
+                document.getElementById('ocrMessage').textContent = '❌ Error en el procesamiento';
+            } finally {
+                isOCRProcessing = false;
+                document.getElementById('ocrBtn').disabled = false;
+                document.getElementById('multiOcrBtn').disabled = false;
+            }
+        }
+
+        // Detectar y procesar múltiples tarjetas con algoritmo mejorado
+        async function runMultiCardOCR() {
+            if (isOCRProcessing) {
+                showAlert('Ya hay un proceso de OCR en ejecución', 'warning');
+                return;
+            }
+
+            if (!currentImageData) {
+                showAlert('No hay imagen cargada', 'error');
+                return;
+            }
+
+            const confirmed = confirm('🔍 Modo de detección múltiple avanzado:\n\nEsta función analizará toda la imagen buscando múltiples tarjetas automáticamente.\n\nEl proceso puede tardar 2-3 minutos dependiendo de la cantidad de tarjetas.\n\n¿Continuar?');
+            if (!confirmed) return;
+
+            isOCRProcessing = true;
+            document.getElementById('ocrBtn').disabled = true;
+            document.getElementById('multiOcrBtn').disabled = true;
+            document.getElementById('ocrStatus').classList.add('active');
+            document.getElementById('ocrMessage').textContent = '🤖 Inicializando detección múltiple...';
+            document.getElementById('ocrProgress').style.width = '0%';
+
+            try {
+                const worker = await initOCRWorker();
+                
+                const img = new Image();
+                img.src = currentImageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                document.getElementById('ocrMessage').textContent = '🔍 Paso 1: Analizando imagen completa...';
+                document.getElementById('ocrProgress').style.width = '20%';
+                
+                const { data: { text, words } } = await worker.recognize(currentImageData);
+                
+                if (!words || words.length === 0) {
+                    showAlert('No se detectó texto en la imagen', 'error');
+                    return;
+                }
+
+                document.getElementById('ocrMessage').textContent = '🔍 Paso 2: Segmentando tarjetas por proximidad y estructura...';
+                document.getElementById('ocrProgress').style.width = '40%';
+
+                const cardRegions = segmentCardsByPosition(words, img.width, img.height);
+                
+                if (cardRegions.length === 0) {
+                    showAlert('No se detectaron regiones con estructura de tarjeta. Intenta con OCR simple.', 'warning');
+                    return;
+                }
+                
+                document.getElementById('ocrMessage').textContent = `🔍 Paso 3: ${cardRegions.length} tarjetas detectadas. Extrayendo datos individuales...`;
+                document.getElementById('ocrProgress').style.width = '50%';
+
+                const detectedCards = [];
+                
+                for (let i = 0; i < cardRegions.length; i++) {
+                    const region = cardRegions[i];
+                    const progress = 50 + Math.round((i / cardRegions.length) * 40);
+                    document.getElementById('ocrProgress').style.width = progress + '%';
+                    document.getElementById('ocrMessage').textContent = `🔍 Extrayendo tarjeta ${i + 1} de ${cardRegions.length}...`;
+                    
+                    const sectionCanvas = document.createElement('canvas');
+                    const padding = 30;
+                    sectionCanvas.width = region.width;
+                    sectionCanvas.height = region.height;
+                    const sectionCtx = sectionCanvas.getContext('2d');
+                    
+                    sectionCtx.fillStyle = 'white';
+                    sectionCtx.fillRect(0, 0, sectionCanvas.width, sectionCanvas.height);
+                    
+                    sectionCtx.drawImage(
+                        canvas,
+                        region.x,
+                        region.y,
+                        region.width,
+                        region.height,
+                        0, 0,
+                        sectionCanvas.width,
+                        sectionCanvas.height
+                    );
+                    
+                    const sectionData = sectionCanvas.toDataURL('image/png');
+                    const { data: { text: sectionText } } = await worker.recognize(sectionData);
+                    
+                    if (sectionText.length > 15) {
+                        const cardData = extractCardData(sectionText, sectionData);
+                        
+                        const hasMinimumData = (cardData.fullName && cardData.phone) || 
+                                              (cardData.fullName && cardData.email) ||
+                                              (cardData.phone && cardData.email) ||
+                                              (cardData.fullName && cardData.position);
+                        
+                        if (hasMinimumData) {
+                            detectedCards.push(cardData);
+                        }
+                    }
+                }
+
+                document.getElementById('ocrMessage').textContent = `✅ Detección completada: ${detectedCards.length} tarjetas encontradas`;
+                document.getElementById('ocrProgress').style.width = '100%';
+
+                if (detectedCards.length === 0) {
+                    showAlert('⚠️ No se detectaron tarjetas válidas en la detección múltiple.\n\nPrueba con:\n• OCR simple (para una sola tarjeta)\n• Selección manual (para marcar cada tarjeta)\n• Mejorar calidad de la imagen', 'warning');
+                } else {
+                    let savedCount = 0;
+                    for (const cardData of detectedCards) {
+                        try {
+                            await saveCardToDB(cardData);
+                            savedCount++;
+                        } catch (error) {
+                            console.error('Error guardando tarjeta:', error);
+                        }
+                    }
+                    
+                    showAlert(`🎉 ${savedCount} tarjetas guardadas exitosamente`, 'success');
+                    await renderCards();
+                    cancelForm();
+                }
+
+                setTimeout(() => {
+                    document.getElementById('ocrStatus').classList.remove('active');
+                }, 4000);
+
+            } catch (error) {
+                showAlert('Error en detección múltiple: ' + error.message, 'error');
+                document.getElementById('ocrMessage').textContent = '❌ Error en el procesamiento';
+            } finally {
+                isOCRProcessing = false;
+                document.getElementById('ocrBtn').disabled = false;
+                document.getElementById('multiOcrBtn').disabled = false;
+            }
+        }
+
+        function segmentCardsByPosition(words, imgWidth, imgHeight) {
+            if (!words || words.length === 0) return [];
+            
+            const minCardWidth = 150;
+            const minCardHeight = 80;
+            const maxGapX = 120;
+            const maxGapY = 100;
+            const margin = 50;
+            
+            const sortedWords = words.sort((a, b) => {
+                if (Math.abs(a.bbox.y0 - b.bbox.y0) < 10) {
+                    return a.bbox.x0 - b.bbox.x0;
+                }
+                return a.bbox.y0 - b.bbox.y0;
+            });
+
+            const clusters = [];
+            
+            for (const word of sortedWords) {
+                let addedToCluster = false;
+                
+                for (const cluster of clusters) {
+                    let canAdd = false;
+                    
+                    for (const clusterWord of cluster) {
+                        const horizontalDist = Math.abs(word.bbox.x0 - clusterWord.bbox.x0);
+                        const verticalDist = Math.abs(word.bbox.y0 - clusterWord.bbox.y0);
+                        
+                        const isNearbyHorizontal = horizontalDist < maxGapX && verticalDist < 30;
+                        const isNearbyVertical = verticalDist < maxGapY && horizontalDist < 50;
+                        
+                        if (isNearbyHorizontal || isNearbyVertical) {
+                            canAdd = true;
+                            break;
+                        }
+                    }
+                    
+                    if (canAdd) {
+                        cluster.push(word);
+                        addedToCluster = true;
+                        break;
+                    }
+                }
+                
+                if (!addedToCluster) {
+                    clusters.push([word]);
+                }
+            }
+
+            const validClusters = clusters.filter(cluster => cluster.length >= 4);
+
+            const regions = [];
+            for (const cluster of validClusters) {
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                for (const word of cluster) {
+                    minX = Math.min(minX, word.bbox.x0);
+                    minY = Math.min(minY, word.bbox.y0);
+                    maxX = Math.max(maxX, word.bbox.x1);
+                    maxY = Math.max(maxY, word.bbox.y1);
+                }
+                
+                const width = maxX - minX;
+                const height = maxY - minY;
+                const aspectRatio = width / height;
+                
+                if (width >= minCardWidth && height >= minCardHeight && aspectRatio > 0.4 && aspectRatio < 5) {
+                    regions.push({
+                        x: Math.max(0, minX - margin),
+                        y: Math.max(0, minY - margin),
+                        width: Math.min(imgWidth - minX + margin, width + margin * 2),
+                        height: Math.min(imgHeight - minY + margin, height + margin * 2),
+                        wordCount: cluster.length
+                    });
+                }
+            }
+
+            regions.sort((a, b) => {
+                if (Math.abs(a.y - b.y) < 100) {
+                    return a.x - b.x;
+                }
+                return a.y - b.y;
+            });
+
+            const filteredRegions = [];
+            for (let i = 0; i < regions.length; i++) {
+                const current = regions[i];
+                let overlaps = false;
+                
+                for (let j = 0; j < filteredRegions.length; j++) {
+                    const existing = filteredRegions[j];
+                    
+                    const overlapX = Math.max(0, Math.min(current.x + current.width, existing.x + existing.width) - Math.max(current.x, existing.x));
+                    const overlapY = Math.max(0, Math.min(current.y + current.height, existing.y + existing.height) - Math.max(current.y, existing.y));
+                    const overlapArea = overlapX * overlapY;
+                    
+                    const currentArea = current.width * current.height;
+                    const existingArea = existing.width * existing.height;
+                    
+                    if (overlapArea > 0.5 * Math.min(currentArea, existingArea)) {
+                        overlaps = true;
+                        if (current.wordCount > existing.wordCount) {
+                            filteredRegions[j] = current;
+                        }
+                        break;
+                    }
+                }
+                
+                if (!overlaps) {
+                    filteredRegions.push(current);
+                }
+            }
+
+            return filteredRegions;
+        }
+
+        // Extraer datos de tarjeta mejorado
+        function extractCardData(text, imageData) {
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            const patterns = {
+                email: /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/gi,
+                phone: /(\+?506[\s-]?\d{4}[\s-]?\d{4}|\d{4}[\s-]?\d{4}|[\d\s-]{8,12})/g,
+                name: /^[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô]+(?:\s+[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô]+){1,5}$/
+            };
+
+            const cardData = {
+                category: '',
+                fullName: '',
+                idNumber: '',
+                position: '',
+                department: '',
+                phone: '',
+                email: '',
+                notes: '',
+                imageData: imageData,
+                timestamp: new Date().toISOString()
+            };
+
+            const emailMatches = text.match(patterns.email);
+            if (emailMatches) {
+                const validEmails = emailMatches.filter(e => e.includes('@') && e.split('@')[1].includes('.'));
+                if (validEmails.length > 0) {
+                    cardData.email = validEmails[0].toLowerCase();
+                }
+            }
+
+            const phoneMatches = text.match(patterns.phone);
+            if (phoneMatches) {
+                const validPhones = phoneMatches
+                    .map(p => p.replace(/\D/g, ''))
+                    .filter(p => p.length >= 8 && p.length <= 12)
+                    .sort((a, b) => b.length - a.length);
+                
+                if (validPhones.length > 0) {
+                    const cleanPhone = validPhones[0];
+                    
+                    // Detectar código de país internacional
+                    if (cleanPhone.startsWith('506') && cleanPhone.length >= 11) {
+                        // Costa Rica
+                        cardData.phone = `+${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 7)}-${cleanPhone.substring(7)}`;
+                    } else if (cleanPhone.startsWith('34') && cleanPhone.length >= 11) {
+                        // España
+                        cardData.phone = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('1') && cleanPhone.length >= 11) {
+                        // USA/Canadá
+                        cardData.phone = `+1 ${cleanPhone.substring(1, 4)}-${cleanPhone.substring(4, 7)}-${cleanPhone.substring(7)}`;
+                    } else if (cleanPhone.startsWith('52') && cleanPhone.length >= 12) {
+                        // México
+                        cardData.phone = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('54') && cleanPhone.length >= 12) {
+                        // Argentina
+                        cardData.phone = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('507') && cleanPhone.length >= 11) {
+                        // Panamá
+                        cardData.phone = `+${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3)}`;
+                    } else if (cleanPhone.startsWith('51') && cleanPhone.length >= 11) {
+                        // Perú
+                        cardData.phone = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('57') && cleanPhone.length >= 12) {
+                        // Colombia
+                        cardData.phone = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.length === 9) {
+                        // Número de 9 dígitos sin código país → asumir España
+                        cardData.phone = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else if (cleanPhone.length === 8) {
+                        // Número de 8 dígitos sin código país → asumir España o Costa Rica
+                        cardData.phone = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else if (cleanPhone.length === 10 && !cleanPhone.startsWith('1')) {
+                        // Número de 10 dígitos sin código reconocido → asumir España
+                        cardData.phone = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else {
+                        // Formato genérico con código de España por defecto
+                        cardData.phone = `+34 ${cleanPhone}`;
+                    }
+                }
+            }
+
+            const nameCandidates = [];
+            for (const line of lines) {
+                const cleanLine = line.trim();
+                if (cleanLine.includes('@')) continue;
+                if (cleanLine.match(/\d{4,}/)) continue; // Evitar líneas con muchos números
+                
+                if (patterns.name.test(cleanLine) && cleanLine.length > 4 && cleanLine.length < 70) {
+                    const wordCount = cleanLine.split(/\s+/).length;
+                    const hasOnlyLetters = /^[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô\s.]+$/.test(cleanLine);
+                    
+                    if (wordCount >= 2 && wordCount <= 6 && hasOnlyLetters) {
+                        nameCandidates.push(cleanLine);
+                    }
+                }
+            }
+            
+            if (nameCandidates.length > 0) {
+                cardData.fullName = nameCandidates[0];
+            } else if (lines.length > 0) {
+                // Fallback: usar primera línea con al menos 2 palabras y sin números
+                for (const line of lines) {
+                    const cleanLine = line.trim();
+                    if (cleanLine.length > 4 && !cleanLine.includes('@') && 
+                        !cleanLine.match(/\d{3,}/) && cleanLine.split(/\s+/).length >= 2) {
+                        cardData.fullName = cleanLine.substring(0, 50);
+                        break;
+                    }
+                }
+            }
+
+            const positionKeywords = [
+                'agente', 'inspector', 'detective', 'oficial', 'director', 'jefe', 'coordinador', 
+                'investigador', 'técnico', 'especialista', 'analista', 'gerente', 'subdirector', 
+                'supervisor', 'encargado', 'responsable', 'administrador', 'ejecutivo', 'manager', 
+                'presidente', 'vicepresidente', 'secretario', 'asistente', 'asesor', 'consultor',
+                'licenciado', 'licenciada', 'lic.', 'ingeniero', 'ingeniera', 'ing.', 'doctor', 
+                'doctora', 'dr.', 'dra.', 'abogado', 'abogada', 'arquitecto', 'arquitecta',
+                'contador', 'contadora', 'médico', 'médica', 'profesor', 'profesora', 'prof.',
+                'capitán', 'teniente', 'sargento', 'comisionado', 'subcomisionado', 'comandante',
+                'socio', 'fundador', 'propietario', 'dueño', 'ceo', 'cfo', 'coo', 'cto',
+                'representante', 'delegado', 'embajador', 'ministro', 'viceministro', 'subsecretario',
+                'senior', 'head of', 'chancellor', 'general manager', 'technical manager',
+                'consejero', 'deputy', 'specialist', 'jefe de ventas', 'jefe de', 'responsible'
+            ];
+            const deptKeywords = [
+                'homicidios', 'fraudes', 'narcotrafico', 'narcotráfico', 'criminalistica', 'criminalística', 
+                'investigacion', 'investigación', 'delitos', 'tránsito', 'violencia', 'oij', 'o.i.j', 
+                'ministerio', 'policía', 'policia', 'seguridad', 'inteligencia', 'cibercrimen', 'ciber crimen', 
+                'económicos', 'económico', 'financieros', 'tecnología', 'recursos humanos', 'rrhh',
+                'contabilidad', 'finanzas', 'ventas', 'marketing', 'comercial', 'operaciones',
+                'producción', 'logística', 'compras', 'legal', 'jurídico', 'compliance',
+                'auditoría', 'calidad', 'innovación', 'desarrollo', 'investigación', 'i+d',
+                'comunicación', 'prensa', 'relaciones públicas', 'gobierno', 'estatal',
+                'municipal', 'provincial', 'nacional', 'federal', 'internacional'
+            ];
+            
+            // Patrones mejorados para detectar empresas/instituciones
+            const orgPatterns = [
+                /\b(s\.?a\.?|s\.?r\.?l\.?|ltda\.?|inc\.?|corp\.?|llc|plc|gmbh|ag)\b/gi,
+                /\b(ministerio|departamento|dirección|división|unidad|sección|secretaría)\s+(?:de|del|de la)\s+[\w\s]{3,40}/gi,
+                /\b(organismo|institución|instituto|fundación|corporación|empresa|compañía|firma|consultora|asesoría)\s+[\w\s]{3,40}/gi,
+                /\b(banco|universidad|hospital|clínica|centro|laboratorio|grupo|holding)\s+[\w\s]{3,40}/gi,
+                /\b(gobierno|administración|municipalidad|alcaldía|juzgado|tribunal|fiscalía)\s+[\w\s]{3,40}/gi,
+                /\b(colegio|escuela|academia|facultad|departamento académico)\s+[\w\s]{3,40}/gi,
+                /\b(asociación|federación|confederación|sindicato|cámara)\s+[\w\s]{3,40}/gi,
+                /\b(servicios?|soluciones|tecnologías|sistemas|consultoría)\s+[\w\s]{3,40}/gi,
+                /\b(un|u\.n\.|business|association|enterprise|grupo|group)\s+[\w\s]{3,40}/gi,
+                /\b[\w\s]{3,40}\s+(un|business|association|enterprise|empresa|grupo|group)\b/gi
+            ];
+
+            for (const line of lines) {
+                const lowerLine = line.toLowerCase();
+                const cleanLine = line.trim();
+                
+                // Detectar cargo/posición
+                if (!cardData.position) {
+                    for (const keyword of positionKeywords) {
+                        if (lowerLine.includes(keyword)) {
+                            cardData.position = cleanLine;
+                            break;
+                        }
+                    }
+                }
+
+                // Detectar departamento
+                if (!cardData.department) {
+                    for (const keyword of deptKeywords) {
+                        if (lowerLine.includes(keyword)) {
+                            cardData.department = cleanLine;
+                            break;
+                        }
+                    }
+                    
+                    // Si no se encontró con keywords, buscar con patrones de organización
+                    if (!cardData.department) {
+                        for (const pattern of orgPatterns) {
+                            if (pattern.test(cleanLine)) {
+                                cardData.department = cleanLine;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!cardData.fullName && lines.length > 0) {
+                // Buscar primera línea válida con al menos 2 palabras
+                for (const line of lines) {
+                    const cleanLine = line.trim();
+                    if (cleanLine.length > 4 && cleanLine.split(/\s+/).length >= 2 && 
+                        !cleanLine.includes('@') && !cleanLine.match(/\d{5,}/)) {
+                        cardData.fullName = cleanLine.substring(0, 50);
+                        break;
+                    }
+                }
+                // Último recurso: primera línea
+                if (!cardData.fullName) {
+                    cardData.fullName = lines[0].substring(0, 50);
+                }
+            }
+
+            cardData.notes = 'Detectada automáticamente por OCR múltiple' + (text.length < 30 ? ' (texto corto detectado)' : '');
+
+            return cardData;
+        }
+
+        // Parsear texto detectado por OCR (tarjeta única)
+        function parseOCRText(text) {
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            const patterns = {
+                email: /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/gi,
+                phone: /(\+?506[\s-]?\d{4}[\s-]?\d{4}|\d{4}[\s-]?\d{4}|[\d\s-]{8,12})/g,
+                name: /^[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô]+(?:\s+[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô]+){1,4}$/
+            };
+
+            const emailMatches = text.match(patterns.email);
+            if (emailMatches && !document.getElementById('email').value) {
+                const validEmails = emailMatches.filter(e => e.includes('@') && e.split('@')[1].includes('.'));
+                if (validEmails.length > 0) {
+                    document.getElementById('email').value = validEmails[0].toLowerCase();
+                }
+            }
+
+            const phoneMatches = text.match(patterns.phone);
+            if (phoneMatches && !document.getElementById('phone').value) {
+                const validPhones = phoneMatches
+                    .map(p => p.replace(/\D/g, ''))
+                    .filter(p => p.length >= 8 && p.length <= 12)
+                    .sort((a, b) => b.length - a.length);
+                
+                if (validPhones.length > 0) {
+                    const cleanPhone = validPhones[0];
+                    
+                    // Detectar código de país internacional (OCR simple)
+                    if (cleanPhone.startsWith('506') && cleanPhone.length >= 11) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 7)}-${cleanPhone.substring(7)}`;
+                    } else if (cleanPhone.startsWith('34') && cleanPhone.length >= 11) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('1') && cleanPhone.length >= 11) {
+                        document.getElementById('phone').value = `+1 ${cleanPhone.substring(1, 4)}-${cleanPhone.substring(4, 7)}-${cleanPhone.substring(7)}`;
+                    } else if (cleanPhone.startsWith('52') && cleanPhone.length >= 12) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('54') && cleanPhone.length >= 12) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('507') && cleanPhone.length >= 11) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3)}`;
+                    } else if (cleanPhone.startsWith('51') && cleanPhone.length >= 11) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.startsWith('57') && cleanPhone.length >= 12) {
+                        document.getElementById('phone').value = `+${cleanPhone.substring(0, 2)} ${cleanPhone.substring(2)}`;
+                    } else if (cleanPhone.length === 9) {
+                        // Número de 9 dígitos sin código país → asumir España
+                        document.getElementById('phone').value = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else if (cleanPhone.length === 8) {
+                        // Número de 8 dígitos sin código país → asumir España
+                        document.getElementById('phone').value = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else if (cleanPhone.length === 10 && !cleanPhone.startsWith('1')) {
+                        // Número de 10 dígitos sin código reconocido → asumir España
+                        document.getElementById('phone').value = `+34 ${cleanPhone.substring(0, 3)} ${cleanPhone.substring(3, 6)} ${cleanPhone.substring(6)}`;
+                    } else {
+                        // Formato genérico con código de España por defecto
+                        document.getElementById('phone').value = `+34 ${cleanPhone}`;
+                    }
+                }
+            }
+
+            if (!document.getElementById('fullName').value) {
+                for (const line of lines) {
+                    const cleanLine = line.trim();
+                    if (cleanLine.includes('@')) continue;
+                    
+                    const hasOnlyLetters = /^[A-ZÁÉÍÓÚÑÃÕÀÂÊÔa-záéíóúñãõàâêô\s]+$/.test(cleanLine);
+                    
+                    if (patterns.name.test(cleanLine) && cleanLine.length > 6 && cleanLine.length < 50 && hasOnlyLetters) {
+                        document.getElementById('fullName').value = cleanLine;
+                        break;
+                    }
+                }
+            }
+
+            const positionKeywords = [
+                'agente', 'inspector', 'detective', 'oficial', 'director', 'jefe', 'coordinador', 
+                'gerente', 'subdirector', 'supervisor', 'encargado', 'responsable', 'administrador', 
+                'ejecutivo', 'manager', 'presidente', 'vicepresidente', 'secretario', 'asistente', 
+                'asesor', 'consultor', 'licenciado', 'licenciada', 'lic.', 'ingeniero', 'ingeniera', 
+                'ing.', 'doctor', 'doctora', 'dr.', 'dra.', 'abogado', 'abogada', 'arquitecto', 
+                'arquitecta', 'contador', 'contadora', 'médico', 'médica', 'profesor', 'profesora', 
+                'prof.', 'capitán', 'teniente', 'sargento', 'comisionado', 'subcomisionado', 
+                'comandante', 'socio', 'fundador', 'propietario', 'dueño', 'ceo', 'cfo', 'coo', 
+                'cto', 'representante', 'delegado', 'embajador', 'ministro', 'viceministro', 
+                'subsecretario', 'senior', 'head of', 'chancellor', 'general manager', 
+                'technical manager', 'consejero', 'deputy', 'specialist', 'jefe de ventas', 
+                'jefe de', 'responsible'
+            ];
+            const deptKeywords = [
+                'homicidios', 'fraudes', 'narcotrafico', 'criminalistica', 'investigacion', 'oij', 
+                'o.i.j', 'ministerio', 'policía', 'policia', 'seguridad', 'inteligencia', 'cibercrimen', 
+                'económicos', 'financieros', 'tecnología', 'recursos humanos', 'rrhh', 'contabilidad', 
+                'finanzas', 'ventas', 'marketing', 'comercial', 'operaciones', 'producción', 'logística', 
+                'compras', 'legal', 'jurídico', 'compliance', 'auditoría', 'calidad', 'innovación', 
+                'desarrollo', 'investigación', 'i+d', 'comunicación', 'prensa', 'relaciones públicas', 
+                'gobierno', 'estatal', 'municipal', 'provincial', 'nacional', 'federal', 'internacional'
+            ];
+            
+            // Patrones mejorados para detectar empresas/instituciones (OCR simple)
+            const orgPatterns = [
+                /\b(s\.?a\.?|s\.?r\.?l\.?|ltda\.?|inc\.?|corp\.?|llc|plc|gmbh|ag)\b/gi,
+                /\b(ministerio|departamento|dirección|división|unidad|sección|secretaría)\s+(?:de|del|de la)\s+[\w\s]{3,40}/gi,
+                /\b(organismo|institución|instituto|fundación|corporación|empresa|compañía|firma|consultora|asesoría)\s+[\w\s]{3,40}/gi,
+                /\b(banco|universidad|hospital|clínica|centro|laboratorio|grupo|holding)\s+[\w\s]{3,40}/gi,
+                /\b(gobierno|administración|municipalidad|alcaldía|juzgado|tribunal|fiscalía)\s+[\w\s]{3,40}/gi,
+                /\b(colegio|escuela|academia|facultad|departamento académico)\s+[\w\s]{3,40}/gi,
+                /\b(asociación|federación|confederación|sindicato|cámara)\s+[\w\s]{3,40}/gi,
+                /\b(servicios?|soluciones|tecnologías|sistemas|consultoría)\s+[\w\s]{3,40}/gi,
+                /\b(un|u\.n\.|business|association|enterprise|grupo|group)\s+[\w\s]{3,40}/gi,
+                /\b[\w\s]{3,40}\s+(un|business|association|enterprise|empresa|grupo|group)\b/gi
+            ];
+
+            for (const line of lines) {
+                const lowerLine = line.toLowerCase();
+                const cleanLine = line.trim();
+                
+                // Detectar cargo/posición
+                if (!document.getElementById('position').value) {
+                    for (const keyword of positionKeywords) {
+                        if (lowerLine.includes(keyword)) {
+                            document.getElementById('position').value = cleanLine;
+                            break;
+                        }
+                    }
+                }
+
+                // Detectar departamento
+                if (!document.getElementById('department').value) {
+                    for (const keyword of deptKeywords) {
+                        if (lowerLine.includes(keyword)) {
+                            document.getElementById('department').value = cleanLine;
+                            break;
+                        }
+                    }
+                    
+                    // Si no se encontró con keywords, buscar con patrones de organización
+                    if (!document.getElementById('department').value) {
+                        for (const pattern of orgPatterns) {
+                            if (pattern.test(cleanLine)) {
+                                document.getElementById('department').value = cleanLine;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!document.getElementById('notes').value && text.length > 20) {
+                document.getElementById('notes').value = 'Texto detectado por OCR:\n' + text;
+            }
+        }
+
+        // Sistema de selección manual de tarjetas
+        function startManualSelection() {
+            if (!currentImageData) {
+                showAlert('Por favor carga una imagen primero', 'error');
+                return;
+            }
+
+            document.getElementById('selectionCanvas').classList.remove('hidden');
+            document.getElementById('ocrBtn').disabled = true;
+            document.getElementById('multiOcrBtn').disabled = true;
+            document.getElementById('manualSelectBtn').disabled = true;
+            
+            selectedRegions = [];
+            updateSelectionCount();
+
+            const img = new Image();
+            img.onload = function() {
+                canvas = document.getElementById('canvasElement');
+                ctx = canvas.getContext('2d');
+                
+                currentImageForSelection = img;
+                
+                const maxWidth = canvas.parentElement.clientWidth - 50;
+                const scale = Math.min(1, maxWidth / img.width);
+                canvasScale = scale;
+                
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                setupCanvasEvents();
+            };
+            img.src = currentImageData;
+        }
+
+        function setupCanvasEvents() {
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('mouseleave', handleMouseLeave);
+        }
+
+        function handleMouseDown(e) {
+            if (selectedRegions.length >= 8) {
+                showAlert('Máximo 8 tarjetas por imagen', 'warning');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            startX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            startY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            isDrawing = true;
+        }
+
+        function handleMouseMove(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const currentY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            
+            redrawCanvas();
+            
+            ctx.strokeStyle = '#8b5cf6';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+            ctx.setLineDash([]);
+        }
+
+        function handleMouseUp(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const endX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const endY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+            
+            if (width > 20 && height > 20) {
+                const region = {
+                    x: Math.min(startX, endX),
+                    y: Math.min(startY, endY),
+                    width: width,
+                    height: height,
+                    scaledX: Math.min(startX, endX) / canvasScale,
+                    scaledY: Math.min(startY, endY) / canvasScale,
+                    scaledWidth: width / canvasScale,
+                    scaledHeight: height / canvasScale
+                };
+                
+                selectedRegions.push(region);
+                updateSelectionCount();
+                redrawCanvas();
+                
+                showAlert(`Tarjeta ${selectedRegions.length} seleccionada`, 'success');
+            }
+            
+            isDrawing = false;
+        }
+
+        function handleMouseLeave() {
+            if (isDrawing) {
+                isDrawing = false;
+                redrawCanvas();
+            }
+        }
+
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImageForSelection, 0, 0, canvas.width, canvas.height);
+            
+            selectedRegions.forEach((region, index) => {
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(region.x, region.y, region.width, region.height);
+                
+                ctx.fillStyle = '#10b981';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText((index + 1).toString(), region.x + 10, region.y + 30);
+                
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+                ctx.fillRect(region.x, region.y, region.width, region.height);
+            });
+        }
+
+        function updateSelectionCount() {
+            document.getElementById('selectionCount').textContent = selectedRegions.length;
+            document.getElementById('processSelectionsBtn').disabled = selectedRegions.length < 4;
+        }
+
+        function undoLastSelection() {
+            if (selectedRegions.length > 0) {
+                selectedRegions.pop();
+                updateSelectionCount();
+                redrawCanvas();
+                showAlert('Última selección eliminada', 'success');
+            }
+        }
+
+        function cancelManualSelection() {
+            document.getElementById('selectionCanvas').classList.add('hidden');
+            document.getElementById('ocrBtn').disabled = false;
+            document.getElementById('multiOcrBtn').disabled = false;
+            document.getElementById('manualSelectBtn').disabled = false;
+            selectedRegions = [];
+            updateSelectionCount();
+            canvas = null;
+            ctx = null;
+            currentImageForSelection = null;
+        }
+
+        async function processSelectedRegions() {
+            if (selectedRegions.length < 4 || selectedRegions.length > 8) {
+                showAlert('Debes seleccionar entre 4 y 8 tarjetas', 'error');
+                return;
+            }
+
+            const confirmed = confirm(`🔍 Procesamiento de selección manual:\n\n${selectedRegions.length} tarjetas seleccionadas para procesar.\n\nEl OCR analizará únicamente las áreas que marcaste.\n\n¿Continuar?`);
+            if (!confirmed) return;
+
+            isOCRProcessing = true;
+            document.getElementById('processSelectionsBtn').disabled = true;
+            document.getElementById('selectionCanvas').classList.add('hidden');
+            document.getElementById('ocrStatus').classList.add('active');
+            document.getElementById('ocrMessage').textContent = '🤖 Inicializando OCR en selecciones manuales...';
+            document.getElementById('ocrProgress').style.width = '0%';
+
+            try {
+                const worker = await initOCRWorker();
+                
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = currentImageForSelection.width;
+                tempCanvas.height = currentImageForSelection.height;
+                tempCtx.drawImage(currentImageForSelection, 0, 0);
+
+                const detectedCards = [];
+                
+                for (let i = 0; i < selectedRegions.length; i++) {
+                    const region = selectedRegions[i];
+                    const progress = Math.round((i / selectedRegions.length) * 90);
+                    document.getElementById('ocrProgress').style.width = progress + '%';
+                    document.getElementById('ocrMessage').textContent = `🔍 Procesando tarjeta ${i + 1} de ${selectedRegions.length}...`;
+                    
+                    const cardCanvas = document.createElement('canvas');
+                    cardCanvas.width = region.scaledWidth;
+                    cardCanvas.height = region.scaledHeight;
+                    const cardCtx = cardCanvas.getContext('2d');
+                    
+                    cardCtx.fillStyle = 'white';
+                    cardCtx.fillRect(0, 0, cardCanvas.width, cardCanvas.height);
+                    
+                    cardCtx.drawImage(
+                        tempCanvas,
+                        region.scaledX,
+                        region.scaledY,
+                        region.scaledWidth,
+                        region.scaledHeight,
+                        0, 0,
+                        cardCanvas.width,
+                        cardCanvas.height
+                    );
+                    
+                    const cardData = cardCanvas.toDataURL('image/png');
+                    const { data: { text } } = await worker.recognize(cardData);
+                    
+                    if (text.length > 5) {
+                        const extractedData = extractCardData(text, cardData);
+                        
+                        // Validación más permisiva: al menos UN campo con contenido válido
+                        const hasMinimumData = extractedData.fullName || 
+                                              extractedData.phone || 
+                                              extractedData.email || 
+                                              extractedData.position ||
+                                              extractedData.department;
+                        
+                        if (hasMinimumData) {
+                            detectedCards.push(extractedData);
+                        } else {
+                            console.warn(`Tarjeta ${i + 1}: Datos insuficientes detectados - Texto: ${text.substring(0, 50)}...`);
+                        }
+                    }
+                }
+
+                document.getElementById('ocrMessage').textContent = `✅ Procesamiento completado: ${detectedCards.length} tarjetas válidas`;
+                document.getElementById('ocrProgress').style.width = '100%';
+
+                if (detectedCards.length === 0) {
+                    showAlert('⚠️ No se pudo extraer información válida de las selecciones.\n\nConsejos:\n• Asegúrate de seleccionar bien el área de cada tarjeta\n• Verifica que la imagen tenga buena resolución\n• Intenta con áreas más grandes incluyendo todo el texto', 'warning');
+                } else {
+                    let savedCount = 0;
+                    for (const cardData of detectedCards) {
+                        try {
+                            await saveCardToDB(cardData);
+                            savedCount++;
+                        } catch (error) {
+                            console.error('Error guardando tarjeta:', error);
+                        }
+                    }
+                    
+                    showAlert(`🎉 ${savedCount} tarjetas guardadas exitosamente`, 'success');
+                    await renderCards();
+                    cancelForm();
+                }
+
+                setTimeout(() => {
+                    document.getElementById('ocrStatus').classList.remove('active');
+                }, 4000);
+
+            } catch (error) {
+                showAlert('Error en procesamiento manual: ' + error.message, 'error');
+                document.getElementById('ocrMessage').textContent = '❌ Error en el procesamiento';
+            } finally {
+                isOCRProcessing = false;
+                document.getElementById('ocrBtn').disabled = false;
+                document.getElementById('multiOcrBtn').disabled = false;
+                document.getElementById('manualSelectBtn').disabled = false;
+                selectedRegions = [];
+            }
+        }
+
+        // Limpiar worker al cerrar
+        window.addEventListener('beforeunload', async () => {
+            if (ocrWorker) {
+                await ocrWorker.terminate();
+            }
+        });
+
+        // Guardar tarjeta
+        async function saveCard() {
+            const cardData = {
+                category: document.getElementById('category').value.trim(),
+                fullName: document.getElementById('fullName').value.trim(),
+                idNumber: document.getElementById('idNumber').value.trim(),
+                position: document.getElementById('position').value.trim(),
+                department: document.getElementById('department').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                notes: document.getElementById('notes').value.trim(),
+                imageData: currentImageData,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!cardData.fullName) {
+                showAlert('El nombre completo es obligatorio', 'error');
+                return;
+            }
+
+            try {
+                await saveCardToDB(cardData);
+                showAlert('Tarjeta guardada exitosamente', 'success');
+                cancelForm();
+                await renderCards();
+            } catch (error) {
+                showAlert('Error al guardar la tarjeta: ' + error.message, 'error');
+            }
+        }
+
+        function cancelForm() {
+            document.getElementById('transcriptionForm').classList.add('hidden');
+            document.getElementById('selectionCanvas').classList.add('hidden');
+            document.getElementById('category').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('position').value = '';
+            document.getElementById('department').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('previewImage').src = '';
+            document.getElementById('idNumber').value = '';
+            currentImageData = null;
+            currentImageForSelection = null;
+            selectedRegions = [];
+            fileInput.value = '';
+            
+            // Restaurar botón de guardar a su estado original
+            const saveBtn = document.querySelector('#transcriptionForm .btn-success');
+            if (saveBtn) {
+                saveBtn.textContent = '💾 Guardar tarjeta';
+                saveBtn.onclick = saveCard;
+            }
+        }
+
+        // Renderizar tarjetas
+        async function renderCards() {
+            try {
+                const cards = await getAllCards();
+                const container = document.getElementById('cardsContainer');
+                
+                document.getElementById('totalCards').textContent = cards.length;
+                
+                if (cards.length > 0) {
+                    const lastCard = cards[cards.length - 1];
+                    const date = new Date(lastCard.timestamp);
+                    document.getElementById('lastUpdate').textContent = date.toLocaleString('es-ES');
+                }
+
+                if (cards.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No hay tarjetas registradas</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Agrega tu primera tarjeta en el modo administrador</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = cards.map(card => `
+                    <div class="card" data-card-id="${card.id}">
+                        <img src="${card.imageData}" alt="Tarjeta ${card.fullName}" 
+                             class="card-image" onclick="showImageModal('${card.imageData}')">
+                        <div class="card-content">
+                            ${card.category ? `<p style="background: var(--color-primary); color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; font-weight: 600; margin-bottom: 8px;">${card.category}</p>` : ''}
+                            <p><strong>Nombre:</strong> ${card.fullName}</p>
+                            ${card.position ? `<p><strong>Cargo:</strong> ${card.position}</p>` : ''}
+                            ${card.department ? `<p><strong>Departamento:</strong> ${card.department}</p>` : ''}
+                            ${card.phone ? `<p><strong>Tel:</strong> ${card.phone}</p>` : ''}
+                            ${card.email ? `<p><strong>Email:</strong> ${card.email}</p>` : ''}
+                            ${card.notes ? `<p><strong>Notas:</strong> ${card.notes}</p>` : ''}
+                            <p style="font-size: 11px; color: var(--color-text-secondary); margin-top: 8px;">
+                                Registrado: ${new Date(card.timestamp).toLocaleString('es-ES')}
+                            </p>
+                        </div>
+                        ${currentMode === 'admin' ? `
+                            <div class="card-actions">
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 12px;" 
+                                        onclick="editCard(${card.id})">
+                                    ✏️ Editar
+                                </button>
+                                <button class="btn btn-danger" style="padding: 8px 16px; font-size: 12px;" 
+                                        onclick="deleteCard(${card.id})">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                showAlert('Error al cargar las tarjetas: ' + error.message, 'error');
+            }
+        }
+
+        // Editar tarjeta
+        async function editCard(id) {
+            try {
+                const cards = await getAllCards();
+                const card = cards.find(c => c.id === id);
+                
+                if (!card) {
+                    showAlert('Tarjeta no encontrada', 'error');
+                    return;
+                }
+
+                currentImageData = card.imageData;
+                document.getElementById('previewImage').src = card.imageData;
+                document.getElementById('category').value = card.category || '';
+                document.getElementById('fullName').value = card.fullName;
+                document.getElementById('position').value = card.position || '';
+                document.getElementById('department').value = card.department || '';
+                document.getElementById('phone').value = card.phone || '';
+                document.getElementById('email').value = card.email || '';
+                document.getElementById('notes').value = card.notes || '';
+                
+                document.getElementById('transcriptionForm').classList.remove('hidden');
+                
+                const saveBtn = document.querySelector('#transcriptionForm .btn-success');
+                saveBtn.textContent = '💾 Actualizar tarjeta';
+                saveBtn.onclick = async function() {
+                    await updateCard(id);
+                };
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showAlert('Editando tarjeta. Modifica los campos y guarda los cambios.', 'success');
+                
+            } catch (error) {
+                showAlert('Error al cargar la tarjeta: ' + error.message, 'error');
+            }
+        }
+
+        // Actualizar tarjeta existente
+        async function updateCard(id) {
+            const cardData = {
+                id: id,
+                category: document.getElementById('category').value.trim(),
+                fullName: document.getElementById('fullName').value.trim(),
+                idNumber: document.getElementById('idNumber').value.trim(),
+                position: document.getElementById('position').value.trim(),
+                department: document.getElementById('department').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                notes: document.getElementById('notes').value.trim(),
+                imageData: currentImageData,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!cardData.fullName) {
+                showAlert('El nombre completo es obligatorio', 'error');
+                return;
+            }
+
+            try {
+                // Primero eliminar el registro existente
+                await deleteCardFromDB(id);
+                
+                // Luego guardar con el mismo ID usando put()
+                const transaction = db.transaction(['cards'], 'readwrite');
+                const objectStore = transaction.objectStore('cards');
+                const request = objectStore.put(cardData);
+                
+                request.onsuccess = async () => {
+                    showAlert('Tarjeta actualizada exitosamente', 'success');
+                    cancelForm();
+                    await renderCards();
+                    
+                    // Restaurar el botón a su función original
+                    const saveBtn = document.querySelector('#transcriptionForm .btn-success');
+                    saveBtn.textContent = '💾 Guardar tarjeta';
+                    saveBtn.onclick = saveCard;
+                };
+                
+                request.onerror = () => {
+                    showAlert('Error al actualizar: ' + request.error, 'error');
+                };
+                
+            } catch (error) {
+                showAlert('Error al actualizar la tarjeta: ' + error.message, 'error');
+            }
+        }
+
+        // Eliminar tarjeta
+        async function deleteCard(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar esta tarjeta?')) {
+                return;
+            }
+
+            try {
+                await deleteCardFromDB(id);
+                showAlert('Tarjeta eliminada correctamente', 'success');
+                await renderCards();
+            } catch (error) {
+                showAlert('Error al eliminar la tarjeta: ' + error.message, 'error');
+            }
+        }
+
+        // Filtrar tarjetas
+        function filterCards() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        // Modal de imagen
+        function showImageModal(imageData) {
+            document.getElementById('modalImage').src = imageData;
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        // Exportar a Excel
+        async function exportToExcel() {
+            try {
+                const cards = await getAllCards();
+                
+                if (cards.length === 0) {
+                    showAlert('No hay tarjetas para exportar', 'warning');
+                    return;
+                }
+
+                const wb = XLSX.utils.book_new();
+                
+                // Categorías disponibles
+                const categories = [
+                    'Fundaciones',
+                    'Empresas Importantes',
+                    'Empresas Normales',
+                    'Instituciones Públicas',
+                    'Organismos Internacionales',
+                    'Instituciones Educativas',
+                    'Asociaciones',
+                    'Sin categoría'
+                ];
+
+                // Crear una hoja por cada categoría
+                categories.forEach(category => {
+                    const filteredCards = cards.filter(card => {
+                        if (category === 'Sin categoría') {
+                            return !card.category || card.category === '';
+                        }
+                        return card.category === category;
+                    });
+
+                    if (filteredCards.length > 0) {
+                        const data = filteredCards.map(card => ({
+                            'Nombre completo': card.fullName,
+                            'Cargo': card.position || '',
+                            'Departamento': card.department || '',
+                            'Teléfono': card.phone || '',
+                            'Email': card.email || '',
+                            'Notas': card.notes || '',
+                            'Fecha de registro': new Date(card.timestamp).toLocaleString('es-ES')
+                        }));
+
+                        const ws = XLSX.utils.json_to_sheet(data);
+                        
+                        // Limitar nombre de hoja a 31 caracteres
+                        const sheetName = category.substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    }
+                });
+
+                // Si no hay hojas, crear una vacía
+                if (wb.SheetNames.length === 0) {
+                    const ws = XLSX.utils.json_to_sheet([]);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sin datos');
+                }
+
+                const fileName = `Tarjetas_OIJ_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+
+                showAlert(`Archivo Excel exportado con ${wb.SheetNames.length} categorías`, 'success');
+            } catch (error) {
+                showAlert('Error al exportar a Excel: ' + error.message, 'error');
+            }
+        }
+
+        // Exportar backup JSON
+        async function exportBackup() {
+            try {
+                const cards = await getAllCards();
+                
+                if (cards.length === 0) {
+                    showAlert('No hay datos para exportar', 'warning');
+                    return;
+                }
+
+                // Organizar por categorías
+                const categorizedData = {
+                    'Fundaciones': [],
+                    'Empresas Importantes': [],
+                    'Empresas Normales': [],
+                    'Instituciones Públicas': [],
+                    'Organismos Internacionales': [],
+                    'Instituciones Educativas': [],
+                    'Asociaciones': [],
+                    'Sin categoría': []
+                };
+
+                cards.forEach(card => {
+                    const category = card.category || 'Sin categoría';
+                    if (categorizedData[category]) {
+                        categorizedData[category].push(card);
+                    } else {
+                        categorizedData['Sin categoría'].push(card);
+                    }
+                });
+
+                const backup = {
+                    version: '1.1',
+                    exportDate: new Date().toISOString(),
+                    totalCards: cards.length,
+                    categories: categorizedData,
+                    cards: cards // Mantener lista completa para compatibilidad
+                };
+
+                const dataStr = JSON.stringify(backup, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Backup_TarjetasOIJ_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+
+                showAlert('Backup JSON exportado correctamente con categorías', 'success');
+            } catch (error) {
+                showAlert('Error al exportar backup: ' + error.message, 'error');
+            }
+        }
+
+        // Importar backup JSON
+        function importBackup() {
+            document.getElementById('jsonInput').click();
+        }
+
+        async function loadBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (!backup.cards || !Array.isArray(backup.cards)) {
+                        throw new Error('Formato de backup inválido');
+                    }
+
+                    const confirmMsg = `Este archivo contiene ${backup.cards.length} tarjetas.\n¿Deseas agregar estas tarjetas a las existentes?`;
+                    if (!confirm(confirmMsg)) {
+                        input.value = '';
+                        return;
+                    }
+
+                    for (const card of backup.cards) {
+                        delete card.id;
+                        await saveCardToDB(card);
+                    }
+
+                    showAlert(`${backup.cards.length} tarjetas importadas correctamente`, 'success');
+                    await renderCards();
+                    input.value = '';
+                } catch (error) {
+                    showAlert('Error al importar backup: ' + error.message, 'error');
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Borrar todos los datos
+        async function clearAllData() {
+            const confirm1 = confirm('⚠️ ADVERTENCIA: Esta acción eliminará TODAS las tarjetas registradas.\n¿Estás completamente seguro?');
+            if (!confirm1) return;
+
+            const confirm2 = confirm('Esta es tu última oportunidad. ¿Realmente deseas eliminar TODOS los datos?');
+            if (!confirm2) return;
+
+            try {
+                await clearAllCards();
+                showAlert('Todos los datos han sido eliminados', 'success');
+                await renderCards();
+            } catch (error) {
+                showAlert('Error al borrar los datos: ' + error.message, 'error');
+            }
+        }
+
+        // Inicialización
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB();
+                await renderCards();
+                showAlert('Sistema iniciado correctamente', 'success');
+            } catch (error) {
+                showAlert('Error al inicializar la aplicación: ' + error.message, 'error');
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target.id === 'imageModal') {
+                closeModal();
+            }
+        });
+
+        // ── PWA: install prompt ──────────────────────────────────────────
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            document.getElementById('installBtn').style.display = 'none';
+        });
+
+        // ── PWA: share button ────────────────────────────────────────────
+        if (navigator.share) {
+            document.getElementById('shareBtn').style.display = 'block';
+            document.getElementById('shareBtn').addEventListener('click', async () => {
+                try {
+                    await navigator.share({
+                        title: 'TARJETAS OIJ',
+                        text: 'Sistema de transcripción y gestión de tarjetas',
+                        url: location.href
+                    });
+                } catch(e) { /* cancelled */ }
+            });
+        } else {
+            document.getElementById('shareBtn').style.display = 'block';
+            document.getElementById('shareBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(location.href)
+                    .then(() => showAlert('Enlace copiado al portapapeles', 'success'))
+                    .catch(() => showAlert('Copia este enlace: ' + location.href, 'success'));
+            });
+        }
+
+        // ── Service Worker registration ──────────────────────────────────
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log('SW registrado'))
+                .catch(e => console.warn('SW error:', e));
+        }
+
+    </script>
+
+    <!-- PWA install / share buttons -->
+    <button id="installBtn" style="display:none;position:fixed;bottom:20px;right:20px;z-index:2000;
+        padding:12px 20px;background:#2563eb;color:white;border:none;border-radius:8px;
+        font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+        📲 Instalar app
+    </button>
+    <button id="shareBtn" style="display:none;position:fixed;bottom:20px;right:165px;z-index:2000;
+        padding:12px 20px;background:#64748b;color:white;border:none;border-radius:8px;
+        font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+        🔗 Compartir
+    </button>
+</body>
+</html>
+
